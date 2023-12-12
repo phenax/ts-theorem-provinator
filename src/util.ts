@@ -6,7 +6,7 @@ export type Rewrite<left extends Op, right extends Op> = {
   right: right;
 };
 
-export type Flip<R extends Rewrite<Op, Op>> = Rewrite<R['right'], R['left']>;
+export type Sym<R extends Rewrite<Op, Op>> = Rewrite<R['right'], R['left']>;
 
 export type ApplyRewrite<O extends Op, R extends Rewrite<Op, Op>> =
   O extends R['left'] ? R['right']

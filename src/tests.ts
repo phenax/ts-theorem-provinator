@@ -1,48 +1,48 @@
 import { addition, multiplication } from './index';
-import { Add, Multiply, Succ } from './nat';
-import { ApplyRewrite, ChainRewrites, Flip, Eq, VerifyEquation, Equation, assert, Evaluate } from './util';
+import { Add, Multiply, Succ, _0 } from './nat';
+import { ApplyRewrite, ChainRewrites, Sym, Eq, VerifyEquation, Equation, assert, Evaluate } from './util';
 
 export type specChainRewrites = [
   assert<Eq<
     ChainRewrites<
       [
-        addition.Commutativity<'0', 'B'>,
+        addition.Commutativity<_0, 'B'>,
         addition.Identity<'B'>,
       ],
-      Add<Add<'0', 'B'>, 'C'>
+      Add<Add<_0, 'B'>, 'C'>
     >,
     Add<'B', 'C'>
   >>,
   assert<Eq<
     ChainRewrites<
       [
-        addition.Commutativity<'0', 'B'>,
+        addition.Commutativity<_0, 'B'>,
         addition.Identity<'B'>,
-        Flip<addition.Identity<Add<'B', 'C'>>>,
-        addition.Commutativity<Add<'B', 'C'>, '0'>,
+        Sym<addition.Identity<Add<'B', 'C'>>>,
+        addition.Commutativity<Add<'B', 'C'>, _0>,
       ],
-      Add<Add<'0', 'B'>, 'C'>
+      Add<Add<_0, 'B'>, 'C'>
     >,
-    Add<'0', Add<'B', 'C'>>
+    Add<_0, Add<'B', 'C'>>
   >>,
 ]
 
 export namespace spec_addition {
   export type specIdentity = [
     assert<Eq<
-      ApplyRewrite<Add<'A', Add<'B', '0'>>, addition.Identity<'B'>>,
+      ApplyRewrite<Add<'A', Add<'B', _0>>, addition.Identity<'B'>>,
       Add<'A', 'B'>
     >>,
     assert<Eq<
-      ApplyRewrite<Add<Add<'A', 'B'>, '0'>, addition.Identity<Add<'A', 'B'>>>,
+      ApplyRewrite<Add<Add<'A', 'B'>, _0>, addition.Identity<Add<'A', 'B'>>>,
       Add<'A', 'B'>
     >>,
     assert<Eq<
-      ApplyRewrite<Add<'A', 'B'>, Flip<addition.Identity<Add<'A', 'B'>>>>,
-      Add<Add<'A', 'B'>, '0'>
+      ApplyRewrite<Add<'A', 'B'>, Sym<addition.Identity<Add<'A', 'B'>>>>,
+      Add<Add<'A', 'B'>, _0>
     >>,
     assert<Eq<
-      ApplyRewrite<Add<'A', Add<'B', Add<'C', '0'>>>, addition.Identity<'C'>>,
+      ApplyRewrite<Add<'A', Add<'B', Add<'C', _0>>>, addition.Identity<'C'>>,
       Add<'A', Add<'B', 'C'>>
     >>,
   ]

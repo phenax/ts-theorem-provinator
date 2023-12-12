@@ -18,14 +18,22 @@ export type ApplyRewrite<O extends Op, R extends Rewrite<Op, Op>> =
   )
   : never;
 
-// interface Kind<V = unknown> {
-//   _: V;
-//   return: unknown;
-// }
-// type Ap<K extends Kind, V> = (K & { _: V })['return'];
+export interface Kind<V = unknown, R = unknown> {
+  _: V;
+  return: R;
+}
+export type Ap<K extends Kind, V> = (K & { _: V })['return'];
 
 export type ChainRewrites<Rws extends Rewrite<Op, Op>[], O extends Op> =
   Rws extends [] ? O
-   : Rws extends [infer R extends Rewrite<Op, Op>, ...infer Rs extends Rewrite<Op, Op>[]]
-   ? ChainRewrites<Rs, ApplyRewrite<O, R>>
-   : never;
+  : Rws extends [infer R extends Rewrite<Op, Op>, ...infer Rs extends Rewrite<Op, Op>[]]
+  ? ChainRewrites<Rs, ApplyRewrite<O, R>>
+  : never;
+
+export type VerifyEquation<Eq extends Rewrite<Op, Op>> =
+  Eq['right'] extends 'true' ? true : false & Eq['right'];
+
+export type Eq<a, b> = ([a] extends [b] ? ([b] extends [a] ? true : false & { lhs: a; rhs: b }) : false & { lhs: a; rhs: b });
+
+export type Equation<A extends Op, B extends Op> = { op: '=', a: A, b: B };
+export type Refl<A extends Op> = Rewrite<Equation<A, A>, 'true'>;

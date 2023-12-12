@@ -1,57 +1,57 @@
-import { Op, Rewrite, ChainRewrites, Flip } from './util';
+import { Add, Multiply, Succ, _0 } from './nat';
+import { Op, Rewrite, ChainRewrites, Flip, Equation, Refl } from './util';
 
-export type Add<A extends Op, B extends Op> = { op: '+'; a: A; b: B };
-export type Succ<A extends Op> = Add<'1', A>;
+export namespace addition {
+  export type Identity<A extends Op> = Rewrite<Add<A, _0>, A>;
+  export type IdentityR<A extends Op> = Rewrite<Add<_0, A>, A>;
 
-export type Identity<A extends Op> = Rewrite<Add<A, '0'>, A>;
-export type Commutativity<A extends Op, B extends Op> = Rewrite<Add<A, B>, Add<B, A>>;
+  export type SumSucc1<A extends Op, B extends Op> = Rewrite<Add<Succ<A>, B>, Succ<Add<A, B>>>
+  export type SumSucc2<A extends Op, B extends Op> = Rewrite<Add<A, Succ<B>>, Succ<Add<A, B>>>
 
-export interface Assoc0<A extends Op, B extends Op> {
-  type: 'rewrite',
-  left: Add<Add<'0', A>, B>; // (0 + a) + b
-  right: ChainRewrites<[
-    Commutativity<'0', A>, // = (a + 0) + b
-    Identity<A>, // = a + b
-    Flip<Identity<Add<A, B>>>, // = (a + b) + 0
-    Commutativity<Add<A, B>, '0'>, // = 0 + (a + b)
-  ], this['left']>;
-};
+  /// Sum commutativity
+  export type Commutativity<A extends Op, B extends Op> = Rewrite<Add<A, B>, Add<B, A>>;
+  export interface Comm_Base<B extends Op> {
+    type: 'rewrite',
+    left: Equation<Add<_0, B>, Add<B, _0>>; // 0 + b = b + 0
+    right: ChainRewrites<[
+      IdentityR<B>,        // b = b + 0
+      Flip<Identity<B>>,   // b + 0 = b + 0
+      Refl<Add<B, _0>>,    // true
+    ], this['left']>;
+  };
+  export interface Comm_Inductive<A extends Op, B extends Op> {
+    type: 'rewrite',
+    left: Equation<Add<Succ<A>, B>, Add<B, Succ<A>>>;  // succ(a) + b = b + succ(a)
+    right: ChainRewrites<[
+      SumSucc1<A, B>,         // succ(a + b) = b + succ(a)
+      Commutativity<A, B>,    // succ(b + a) = b + succ(a)
+      SumSucc2<B, A>,         // succ(b + a) = succ(b + a)
+      Refl<Succ<Add<B, A>>>,  // true
+    ], this['left']>;
+  };
 
-export type Assoc1<A extends Op, B extends Op> = Rewrite<Add<Succ<A>, B>, Succ<Add<A, B>>>;
-
-export interface Assoc<A extends Op, B extends Op, C extends Op> {
-  type: 'rewrite',
-  left: Add<Add<A, B>, C>; // (a + b) + c
-  right: ChainRewrites<[
-    Rewrite<A, Succ<A>>, // = CHEATING
-    Assoc1<A, B>, // = succ(a + b) + c
-    Assoc1<Add<A, B>, C>, // = succ(a + b + c)
-    Rewrite<A, '0'>, // CHEATING. TODO: figure out recursion
-    Assoc0<B, C>,  // Induction base case
-    Rewrite<'0', A>, // CHEATING
-    Flip<Assoc1<A, Add<B, C>>>, // = succ(a) + (b + c)
-    Rewrite<Succ<A>, A>, // = CHEATING
-  ], this['left']>;
-};
-
-// type _x = ApplyRewrite<Add<Add<'A', 'B'>, 'C'>, AssocN<'A', 'B', 'C'>>
-
-/*
-Assoc: (a + b) + c = a + (b + c)
-
-For a = 0,
-(0 + b) + c
-= (b + 0) + c -- comm
-= b + c -- id
-= (b + c) + 0 -- flip id
-= 0 + (b + c) -- comm
-
-For a' = succ(a),
-(succ(a) + b) + c
-= succ(a + b) + c
-= succ((a + b) + c)
------ rec
-= succ(a + (b + c))
-= succ(a) + (b + c)
-*/
+  // Sum associativity
+  export type Associativity<A extends Op, B extends Op, C extends Op> = Rewrite<Add<Add<A, B>, C>, Add<A, Add<B, C>>>;
+  export interface Assoc_Base<B extends Op, C extends Op> {
+    type: 'rewrite',
+    left: Equation<Add<Add<'0', B>, C>, Add<'0', Add<B, C>>>; // (0 + b) + c = 0 + (b + c)
+    right: ChainRewrites<[
+      Commutativity<'0', B>,  // (b + 0) + c = 0 + (b + c)
+      Identity<B>,            // b + c = 0 + (b + c)
+      IdentityR<Add<B, C>>,   // b + c = b + c
+      Refl<Add<B, C>>,        // true
+    ], this['left']>;
+  };
+  export interface Assoc_Inductive<A extends Op, B extends Op, C extends Op> {
+    type: 'rewrite',
+    left: Equation<Add<Add<Succ<A>, B>, C>, Add<Succ<A>, Add<B, C>>>; // (succ(a) + b) + c = succ(a) + (b + c)
+    right: ChainRewrites<[
+      SumSucc1<A, B>,                  // succ(a + b) + c = succ(a) + (b + c)
+      SumSucc1<A, Add<B, C>>,          // succ(a + b) + c = succ(a + (b + c))
+      SumSucc1<Add<A, B>, C>,          // succ((a + b) + c) = succ(a + (b + c))
+      Associativity<A, B, C>,          // succ(a + (b + c)) = succ(a + (b + c))
+      Refl<Succ<Add<A, Add<B, C>>>>,   // true
+    ], this['left']>;
+  };
+}
 

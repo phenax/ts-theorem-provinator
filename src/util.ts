@@ -13,7 +13,8 @@ export type ApplyRewrite<O extends Op, R extends Rewrite<Op, Op>> =
   : O extends string ? O
   : O extends { a: Op, b: Op, op: string } ? (
     ApplyRewrite<O['a'], R> extends O['a']
-    ? Omit<O, 'b'> & { b: ApplyRewrite<O['b'], R> }
+    ? (ApplyRewrite<O['b'], R> extends O['b'] ? O
+      : Omit<O, 'b'> & { b: ApplyRewrite<O['b'], R> })
     : Omit<O, 'a'> & { a: ApplyRewrite<O['a'], R> }
   )
   : never;
@@ -33,6 +34,7 @@ export type ChainRewrites<Rws extends Rewrite<Op, Op>[], O extends Op> =
 export type VerifyEquation<Eq extends Rewrite<Op, Op>> =
   Eq['right'] extends 'true' ? true : false & Eq['right'];
 
+export type assert<T extends true> = T;
 export type Eq<a, b> = ([a] extends [b] ? ([b] extends [a] ? true : false & { lhs: a; rhs: b }) : false & { lhs: a; rhs: b });
 
 export type Equation<A extends Op, B extends Op> = { op: '=', a: A, b: B };

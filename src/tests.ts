@@ -1,47 +1,6 @@
-import { addition } from './index';
-import { Add } from './nat';
-import { ApplyRewrite, ChainRewrites, Flip, Eq, VerifyEquation } from './util';
-
-type assert<T extends true> = T;
-
-export type specIdentity = [
-  assert<Eq<
-    ApplyRewrite<Add<'A', Add<'B', '0'>>, addition.Identity<'B'>>,
-    Add<'A', 'B'>
-  >>,
-  assert<Eq<
-    ApplyRewrite<Add<Add<'A', 'B'>, '0'>, addition.Identity<Add<'A', 'B'>>>,
-    Add<'A', 'B'>
-  >>,
-  assert<Eq<
-    ApplyRewrite<Add<'A', 'B'>, Flip<addition.Identity<Add<'A', 'B'>>>>,
-    Add<Add<'A', 'B'>, '0'>
-  >>,
-  assert<Eq<
-    ApplyRewrite<Add<'A', Add<'B', Add<'C', '0'>>>, addition.Identity<'C'>>,
-    Add<'A', Add<'B', 'C'>>
-  >>,
-]
-
-export type specCommutativity = [
-  assert<Eq<
-    ApplyRewrite<Add<'A', 'B'>, addition.Commutativity<'A', 'B'>>,
-    Add<'B', 'A'>
-  >>,
-  assert<Eq<
-    ApplyRewrite<Add<Add<'A', 'B'>, 'C'>, addition.Commutativity<'A', 'B'>>,
-    Add<Add<'B', 'A'>, 'C'>
-  >>,
-  assert<Eq<
-    ApplyRewrite<Add<'A', Add<'B', 'C'>>, addition.Commutativity<'B', 'C'>>,
-    Add<'A', Add<'C', 'B'>>
-  >>,
-]
-
-export type specCommutativityInduction = [
-  assert<VerifyEquation<addition.Comm_Base<'B'>>>,
-  assert<VerifyEquation<addition.Comm_Inductive<'A', 'B'>>>,
-]
+import { addition, multiplication } from './index';
+import { Add, Multiply, Succ } from './nat';
+import { ApplyRewrite, ChainRewrites, Flip, Eq, VerifyEquation, Equation, assert } from './util';
 
 export type specChainRewrites = [
   assert<Eq<
@@ -68,8 +27,47 @@ export type specChainRewrites = [
   >>,
 ]
 
-export type specAssociativityInduction = [
-  assert<VerifyEquation<addition.Assoc_Base<'B', 'C'>>>,
-  assert<VerifyEquation<addition.Assoc_Inductive<'A', 'B', 'C'>>>,
-]
+export namespace spec_addition {
+  export type specIdentity = [
+    assert<Eq<
+      ApplyRewrite<Add<'A', Add<'B', '0'>>, addition.Identity<'B'>>,
+      Add<'A', 'B'>
+    >>,
+    assert<Eq<
+      ApplyRewrite<Add<Add<'A', 'B'>, '0'>, addition.Identity<Add<'A', 'B'>>>,
+      Add<'A', 'B'>
+    >>,
+    assert<Eq<
+      ApplyRewrite<Add<'A', 'B'>, Flip<addition.Identity<Add<'A', 'B'>>>>,
+      Add<Add<'A', 'B'>, '0'>
+    >>,
+    assert<Eq<
+      ApplyRewrite<Add<'A', Add<'B', Add<'C', '0'>>>, addition.Identity<'C'>>,
+      Add<'A', Add<'B', 'C'>>
+    >>,
+  ]
 
+  export type specCommutativity = [
+    assert<Eq<
+      ApplyRewrite<Add<'A', 'B'>, addition.Commutativity<'A', 'B'>>,
+      Add<'B', 'A'>
+    >>,
+    assert<Eq<
+      ApplyRewrite<Add<Add<'A', 'B'>, 'C'>, addition.Commutativity<'A', 'B'>>,
+      Add<Add<'B', 'A'>, 'C'>
+    >>,
+    assert<Eq<
+      ApplyRewrite<Add<'A', Add<'B', 'C'>>, addition.Commutativity<'B', 'C'>>,
+      Add<'A', Add<'C', 'B'>>
+    >>,
+  ]
+}
+
+export namespace multiplication_spec {
+  export type specCommutativity = [
+    assert<Eq<
+      ApplyRewrite<Multiply<Multiply<'A', 'B'>, 'C'>, multiplication.Commutativity<'A', 'B'>>,
+      Multiply<Multiply<'B', 'A'>, 'C'>
+    >>,
+  ]
+}

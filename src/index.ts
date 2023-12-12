@@ -1,5 +1,5 @@
-import { Add, Multiply, Succ, _0 } from './nat';
-import { Op, Rewrite, ChainRewrites, Flip, Equation, Refl } from './util';
+import { Add, Multiply, Succ, _0, _1, _3 } from './nat';
+import { Op, Rewrite, ChainRewrites, Flip, Equation, Refl, VerifyEquation, assert } from './util';
 
 export namespace addition {
   export type Identity<A extends Op> = Rewrite<Add<A, _0>, A>;
@@ -53,5 +53,53 @@ export namespace addition {
       Refl<Succ<Add<A, Add<B, C>>>>,   // true
     ], this['left']>;
   };
+
+  export namespace spec {
+    export type commutativity = [
+      assert<VerifyEquation<Comm_Base<'B'>>>,
+      assert<VerifyEquation<Comm_Inductive<'A', 'B'>>>,
+    ]
+
+    export type associativity = [
+      assert<VerifyEquation<Assoc_Base<'A', 'B'>>>,
+      assert<VerifyEquation<Assoc_Inductive<'A', 'B', 'C'>>>,
+    ]
+  }
+}
+
+export namespace multiplication {
+  export type Identity<A extends Op> = Rewrite<Multiply<A, _1>, A>;
+  export type IdentityR<A extends Op> = Rewrite<Multiply<_1, A>, A>;
+
+  export type Mul_Add<A extends Op, B extends Op> = Rewrite<Multiply<Succ<A>, B>, Add<A, Multiply<A, B>>>;
+  export type Mul_AddR<A extends Op, B extends Op> = Rewrite<Multiply<A, Succ<B>>, Add<B, Multiply<A, B>>>;
+
+  export type Commutativity<A extends Op, B extends Op> = Rewrite<Multiply<A, B>, Multiply<B, A>>;
+  export interface Comm_Base<B extends Op> {
+    type: 'rewrite',
+    left: Equation<Multiply<_1, B>, Multiply<B, _1>>; // 1 * b = b * 1
+    right: ChainRewrites<[
+      IdentityR<B>,    // b = b + 0
+      Identity<B>,     // b = b
+      Refl<B>,         // true
+    ], this['left']>;
+  };
+  export interface Comm_Inductive<A extends Op, B extends Op> {
+    type: 'rewrite',
+    left: Equation<Multiply<Succ<A>, B>, Multiply<B, Succ<A>>>; // succ(a)*b = b*succ(a)
+    right: ChainRewrites<[
+      Mul_Add<A, B>,                 // a + a*b = b*succ(a)
+      Mul_AddR<B, A>,                // a + a*b = a + b*a
+      Commutativity<B, A>,           // a + a*b = a + a*b
+      Refl<Add<A, Multiply<A, B>>>,  // true
+    ], this['left']>;
+  };
+
+  export namespace spec {
+    export type commutativity = [
+      assert<VerifyEquation<Comm_Base<'B'>>>,
+      assert<VerifyEquation<Comm_Inductive<'A', 'B'>>>,
+    ]
+  }
 }
 

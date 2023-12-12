@@ -1,6 +1,6 @@
 import { addition, multiplication } from './index';
 import { Add, Multiply, Succ } from './nat';
-import { ApplyRewrite, ChainRewrites, Flip, Eq, VerifyEquation, Equation, assert } from './util';
+import { ApplyRewrite, ChainRewrites, Flip, Eq, VerifyEquation, Equation, assert, Evaluate } from './util';
 
 export type specChainRewrites = [
   assert<Eq<
@@ -68,6 +68,18 @@ export namespace multiplication_spec {
     assert<Eq<
       ApplyRewrite<Multiply<Multiply<'A', 'B'>, 'C'>, multiplication.Commutativity<'A', 'B'>>,
       Multiply<Multiply<'B', 'A'>, 'C'>
+    >>,
+  ]
+  export type specDistributivity = [
+    assert<Eq<
+      Evaluate<multiplication.Distributivity<'A', 'B', 'C'>>,
+      Add<Multiply<'A', 'C'>, Multiply<'B', 'C'>>
+    >>,
+  ]
+  export type specAssociativity = [
+    assert<Eq<
+      Evaluate<multiplication.Associativity<'A', 'B', 'C'>>,
+      Multiply<'A', Multiply<'B', 'C'>>
     >>,
   ]
 }

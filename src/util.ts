@@ -34,6 +34,8 @@ export type ChainRewrites<Rws extends Rewrite<Op, Op>[], O extends Op> =
 export type VerifyEquation<Eq extends Rewrite<Op, Op>> =
   Eq['right'] extends 'true' ? true : false & Eq['right'];
 
+export type Evaluate<Eq extends Rewrite<Op, Op>> = ApplyRewrite<Eq['left'], Eq>;
+
 export type assert<T extends true> = T;
 export type Eq<a, b> = ([a] extends [b] ? ([b] extends [a] ? true : false & { lhs: a; rhs: b }) : false & { lhs: a; rhs: b });
 

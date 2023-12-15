@@ -7,7 +7,7 @@
   "author": "Akshay Nair <phenax5@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "test": "tsc --noEmit ./src/tests.ts"
+    "test": "tsc --noEmit"
   },
   "dependencies": {
     "typescript": "^5.3.3"

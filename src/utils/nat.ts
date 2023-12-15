@@ -1,4 +1,4 @@
-import { Op } from './util';
+import { Op } from './theorem';
 
 export type Add<A extends Op, B extends Op> = { op: '+'; a: A; b: B };
 export type Multiply<A extends Op, B extends Op> = { op: '*'; a: A; b: B };

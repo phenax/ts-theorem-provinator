@@ -1,31 +1,6 @@
-import { addition, multiplication } from './index';
-import { Add, Multiply, Succ, _0 } from './nat';
-import { ApplyRewrite, ChainRewrites, Sym, Eq, VerifyEquation, Equation, assert, Evaluate } from './util';
-
-export type specChainRewrites = [
-  assert<Eq<
-    ChainRewrites<
-      [
-        addition.Commutativity<_0, 'B'>,
-        addition.Identity<'B'>,
-      ],
-      Add<Add<_0, 'B'>, 'C'>
-    >,
-    Add<'B', 'C'>
-  >>,
-  assert<Eq<
-    ChainRewrites<
-      [
-        addition.Commutativity<_0, 'B'>,
-        addition.Identity<'B'>,
-        Sym<addition.Identity<Add<'B', 'C'>>>,
-        addition.Commutativity<Add<'B', 'C'>, _0>,
-      ],
-      Add<Add<_0, 'B'>, 'C'>
-    >,
-    Add<_0, Add<'B', 'C'>>
-  >>,
-]
+import { addition, multiplication } from '../natural-numbers';
+import { Add, Multiply, _0 } from '../utils/nat';
+import { ApplyRewrite, Sym, Eq, VerifyEquation, Equation, assert, Evaluate } from '../utils/theorem';
 
 export namespace spec_addition {
   export type specIdentity = [

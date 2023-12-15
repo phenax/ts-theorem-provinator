@@ -1,13 +1,16 @@
-type COp = { op: string; a: Op; b: Op }
-export type Op = string | COp;
+type DyadicOp = { op: string; a: Op; b: Op }
+type MonadicOp = { op: string; a: Op }
+export type Op = string | MonadicOp | DyadicOp;
 
 export type OpToStr<O extends Op> =
   O extends string
   ? O
   : O extends { op: string, a: infer a extends string, b: infer b extends string } ? `(${a} ${O['op']} ${b})`
-  : O extends { op: string, a: infer a extends COp, b: infer b extends string } ? `(${OpToStr<a>} ${O['op']} ${b})`
-  : O extends { op: string, a: infer a extends string, b: infer b extends COp } ? `(${a} ${O['op']} ${OpToStr<b>})`
-  : O extends { op: string, a: infer a extends COp, b: infer b extends COp } ? `(${OpToStr<a>} ${O['op']} ${OpToStr<b>})`
+  : O extends { op: string, a: infer a extends DyadicOp, b: infer b extends string } ? `(${OpToStr<a>} ${O['op']} ${b})`
+  : O extends { op: string, a: infer a extends string, b: infer b extends DyadicOp } ? `(${a} ${O['op']} ${OpToStr<b>})`
+  : O extends { op: string, a: infer a extends DyadicOp, b: infer b extends DyadicOp } ? `(${OpToStr<a>} ${O['op']} ${OpToStr<b>})`
+  : O extends { op: string, a: infer a extends string } ? `${O['op']}(${a})`
+  : O extends { op: string, a: infer a extends DyadicOp } ? `${O['op']}(${OpToStr<a>})`
   : never;
 
 type RwType = 'rewrite' | 'imperative';
@@ -32,11 +35,14 @@ export type ApplyRewrite<O extends Op, R extends RewriteBase> =
   R['type'] extends 'imperative' ? (R & { left: O })['right']
   : O extends R['left'] ? R['right']
   : O extends string ? O
-  : O extends { a: Op, b: Op, op: string } ? (
+  : O extends DyadicOp ? (
     ApplyRewrite<O['a'], R> extends O['a']
     ? (ApplyRewrite<O['b'], R> extends O['b'] ? O
       : Omit<O, 'b'> & { b: ApplyRewrite<O['b'], R> })
     : Omit<O, 'a'> & { a: ApplyRewrite<O['a'], R> }
+  )
+  : O extends MonadicOp ? (
+    ApplyRewrite<O['a'], R> extends O['a'] ? O : Omit<O, 'a'> & { a: ApplyRewrite<O['a'], R> }
   )
   : never;
 

@@ -1,5 +1,5 @@
 import { Add, Multiply, Succ, _0, _1, _3 } from './nat';
-import { Op, Rewrite, ChainRewrites, Sym, Equation, Refl, VerifyEquation, assert, RewriteBase, Subst, ApplyRewrite, Evaluate, ReflR, OpToStr } from './util';
+import { Op, Rewrite, ChainRewrites, Sym, Equation, Refl, VerifyEquation, assert, Subst, ApplyRewrite, Evaluate, OpToStr } from './util';
 
 export namespace addition {
   // Identity
@@ -186,7 +186,7 @@ export namespace multiplication {
 }
 
 export namespace equation {
-  type F<X extends Op> = { op: '<F>', a: _0, b: X };
+  type F<X extends Op> = { op: 'F', a: X };
 
   export type Reflexivity<A extends Op> = Rewrite<Equation<A, A>, 'true'>;
 
@@ -194,7 +194,7 @@ export namespace equation {
 
   export type Congruence<A extends Op, B extends Op> = Rewrite<Equation<A, B>, Equation<F<A>, F<B>>>;
 
-  export type SubstituteEq<O extends { op: '=', a: Op, b: Op }> = Rewrite<O['a'], O['b']>
+  export type SubstituteEq<O extends Equation<Op, Op>> = Rewrite<O['a'], O['b']>
   export interface SubstituteEq_Proof<A extends Op, B extends Op> {
     type: 'rewrite',
     known: {

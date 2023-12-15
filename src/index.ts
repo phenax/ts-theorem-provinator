@@ -17,7 +17,7 @@ export namespace addition {
     right: ChainRewrites<[
       IdentityR<B>,         // b = b + 0
       Sym<Identity<B>>,     // b + 0 = b + 0
-      Refl<Add<B, _0>>,     // true
+      Refl,
     ], this['left']>;
   };
   export interface Comm_Inductive_Proof<A extends Op, B extends Op> {
@@ -27,7 +27,7 @@ export namespace addition {
       SumSucc<A, B>,          // succ(a + b) = b + succ(a)
       Commutativity<A, B>,    // succ(b + a) = b + succ(a)
       SumSuccR<B, A>,         // succ(b + a) = succ(b + a)
-      Refl<Succ<Add<B, A>>>,  // true
+      Refl,
     ], this['left']>;
   };
   export namespace spec {
@@ -46,7 +46,7 @@ export namespace addition {
       Commutativity<_0, B>,   // (b + 0) + c = 0 + (b + c)
       Identity<B>,            // b + c = 0 + (b + c)
       IdentityR<Add<B, C>>,   // b + c = b + c
-      Refl<Add<B, C>>,        // true
+      Refl,
     ], this['left']>;
   };
   export interface Assoc_Inductive_Proof<A extends Op, B extends Op, C extends Op> {
@@ -57,7 +57,7 @@ export namespace addition {
       SumSucc<A, Add<B, C>>,           // succ(a + b) + c = succ(a + (b + c))
       SumSucc<Add<A, B>, C>,           // succ((a + b) + c) = succ(a + (b + c))
       Associativity<A, B, C>,          // succ(a + (b + c)) = succ(a + (b + c))
-      Refl<Succ<Add<A, Add<B, C>>>>,   // true
+      Refl,
     ], this['left']>;
   };
 
@@ -85,7 +85,7 @@ export namespace multiplication {
     right: ChainRewrites<[
       IdentityR<B>,        // b = b * 1
       Identity<B>,         // b = b
-      Refl<B>,             // true
+      Refl,
     ], this['left']>;
   };
   export interface Comm_Inductive_Proof<A extends Op, B extends Op> {
@@ -95,7 +95,7 @@ export namespace multiplication {
       MulSucc<A, B>,                     // b + a*b = b*succ(a)
       MulSuccR<B, A>,                    // b + a*b = b + b*a
       Commutativity<B, A>,               // b + a*b = b + a*b
-      Refl<Add<B, Multiply<A, B>>>,      // true
+      Refl,
     ], this['left']>;
   };
   export namespace spec {
@@ -116,19 +116,19 @@ export namespace multiplication {
       addition.SumSucc<_0, B>,            // succ(0 + b)*c = c + b*c
       addition.IdentityR<B>,              // succ(b)*c = c + b*c
       MulSucc<B, C>,                      // c + b*c = c + b*c
-      Refl<Add<C, Multiply<B, C>>>,       // true
+      Refl,
     ], this['left']>;
   };
   export interface Dist_Inductive_Proof<A extends Op, B extends Op, C extends Op> {
     type: 'rewrite',
     left: Equation<Multiply<Add<Succ<A>, B>, C>, Add<Multiply<Succ<A>, C>, Multiply<B, C>>>; // (succ(a) + b)*c = succ(a)*c + b*c
     right: ChainRewrites<[
-      addition.SumSucc<A, B>,                                      // succ(a + b)*c = succ(a)*c + b*c
+      addition.SumSucc<A, B>,                                       // succ(a + b)*c = succ(a)*c + b*c
       MulSucc<Add<A, B>, C>,                                        // c + (a + b)*c = succ(a)*c + b*c
       MulSucc<A, C>,                                                // c + (a + b)*c = (c + a*c) + b*c
       Distributivity<A, B, C>,                                      // c + (a*c + b*c) = (c + a*c) + b*c
       addition.Associativity<C, Multiply<A, C>, Multiply<B, C>>,    // (c + a*c) + b*c = (c + a*c) + b*c
-      Refl<Add<C, Add<Multiply<A, C>, Multiply<B, C>>>>,            // true
+      Refl,
     ], this['left']>;
   };
   export namespace spec {
@@ -147,18 +147,18 @@ export namespace multiplication {
     right: ChainRewrites<[
       IdentityR<B>,                     // b*c = 1*(b*c)
       IdentityR<Multiply<B, C>>,        // b*c = b*c
-      Refl<Multiply<B, C>>,             // true
+      Refl,
     ], this['left']>;
   };
   export interface Assoc_Inductive_Proof<A extends Op, B extends Op, C extends Op> {
     type: 'rewrite',
     left: Equation<Multiply<Multiply<Succ<A>, B>, C>, Multiply<Succ<A>, Multiply<B, C>>>; // (succ(a)*b)*c = succ(a)*(b*c)
     right: ChainRewrites<[
-      MulSucc<A, B>,                                                   // (b + a*b)*c = succ(a) * (b*c)
-      Distributivity<B, Multiply<A, B>, C>,                            // b*c + (a*b)*c = succ(a) * (b*c)
-      MulSucc<A, Multiply<B, C>>,                                      // b*c + (a*b)*c = b*c + a*(b*c)
-      Associativity<A, B, C>,                                          // b*c + a*(b*c) = b*c + a*(b*c)
-      Refl<Add<Multiply<B, C>, Multiply<A, Multiply<B, C>>>>,          // true
+      MulSucc<A, B>,                            // (b + a*b)*c = succ(a) * (b*c)
+      Distributivity<B, Multiply<A, B>, C>,     // b*c + (a*b)*c = succ(a) * (b*c)
+      MulSucc<A, Multiply<B, C>>,               // b*c + (a*b)*c = b*c + a*(b*c)
+      Associativity<A, B, C>,                   // b*c + a*(b*c) = b*c + a*(b*c)
+      Refl,
     ], this['left']>;
   };
   export namespace spec {

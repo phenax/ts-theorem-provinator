@@ -1,4 +1,14 @@
-export type Op = string | { op: string; a: Op; b: Op };
+type COp = { op: string; a: Op; b: Op }
+export type Op = string | COp;
+
+export type OpToStr<O extends Op> =
+  O extends string
+  ? O
+  : O extends { op: string, a: infer a extends string, b: infer b extends string } ? `(${a} ${O['op']} ${b})`
+  : O extends { op: string, a: infer a extends COp, b: infer b extends string } ? `(${OpToStr<a>} ${O['op']} ${b})`
+  : O extends { op: string, a: infer a extends string, b: infer b extends COp } ? `(${a} ${O['op']} ${OpToStr<b>})`
+  : O extends { op: string, a: infer a extends COp, b: infer b extends COp } ? `(${OpToStr<a>} ${O['op']} ${OpToStr<b>})`
+  : never;
 
 type RwType = 'rewrite' | 'imperative';
 
@@ -6,6 +16,7 @@ export interface RewriteBase {
   type: RwType;
   left: Op;
   right: Op;
+  assume?: Record<string, Op | RewriteBase>;
 }
 
 export interface Rewrite<left extends Op, right extends Op, Typ extends RwType = 'rewrite'> extends RewriteBase {
@@ -15,6 +26,7 @@ export interface Rewrite<left extends Op, right extends Op, Typ extends RwType =
 };
 
 export type Sym<R extends RewriteBase> = Rewrite<R['right'], R['left'], R['type']>;
+export type Subst<A extends Op, B extends Op> = Rewrite<A, B>
 
 export type ApplyRewrite<O extends Op, R extends RewriteBase> =
   R['type'] extends 'imperative' ? (R & { left: O })['right']
@@ -40,6 +52,7 @@ export type VerifyEquation<Eq extends RewriteBase> =
 export type Evaluate<Eq extends RewriteBase> = ApplyRewrite<Eq['left'], Eq>;
 
 export type assert<T extends true> = T;
+export type assertFalse<T extends false> = T;
 export type Eq<a, b> = ([a] extends [b] ? ([b] extends [a] ? true : false & { lhs: a; rhs: b }) : false & { lhs: a; rhs: b });
 
 export type Equation<A extends Op, B extends Op> = { op: '=', a: A, b: B };

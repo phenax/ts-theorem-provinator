@@ -6,9 +6,9 @@ export type OpToStr<O extends Op> =
   O extends string
   ? O
   : O extends { op: string, a: infer a extends string, b: infer b extends string } ? `(${a} ${O['op']} ${b})`
-  : O extends { op: string, a: infer a extends DyadicOp, b: infer b extends string } ? `(${OpToStr<a>} ${O['op']} ${b})`
-  : O extends { op: string, a: infer a extends string, b: infer b extends DyadicOp } ? `(${a} ${O['op']} ${OpToStr<b>})`
-  : O extends { op: string, a: infer a extends DyadicOp, b: infer b extends DyadicOp } ? `(${OpToStr<a>} ${O['op']} ${OpToStr<b>})`
+  : O extends { op: string, a: infer a extends DyadicOp | MonadicOp, b: infer b extends string } ? `(${OpToStr<a>} ${O['op']} ${b})`
+  : O extends { op: string, a: infer a extends string, b: infer b extends DyadicOp | MonadicOp } ? `(${a} ${O['op']} ${OpToStr<b>})`
+  : O extends { op: string, a: infer a extends DyadicOp | MonadicOp, b: infer b extends DyadicOp | MonadicOp } ? `(${OpToStr<a>} ${O['op']} ${OpToStr<b>})`
   : O extends { op: string, a: infer a extends string } ? `${O['op']}(${a})`
   : O extends { op: string, a: infer a extends DyadicOp } ? `${O['op']}(${OpToStr<a>})`
   : never;
@@ -30,6 +30,7 @@ export interface Rewrite<left extends Op, right extends Op, Typ extends RwType =
 
 export type Sym<R extends RewriteBase> = Rewrite<R['right'], R['left'], R['type']>;
 export type Subst<A extends Op, B extends Op> = Rewrite<A, B>
+export type SubstEq<O extends Equation<Op, Op>> = Rewrite<O['a'], O['b']>
 
 export type ApplyRewrite<O extends Op, R extends RewriteBase> =
   R['type'] extends 'imperative' ? (R & { left: O })['right']

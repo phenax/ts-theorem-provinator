@@ -112,3 +112,32 @@ export namespace composition {
   }
 }
 
+export namespace combinators {
+  export type I<x extends Op = 'x'> = Abs<x, x>
+  export type K<x extends Op = 'x', y extends Op = 'y'> = Abs<x, Abs<y, x>>
+  export type S<x extends Op = 'x', y extends Op = 'y', z extends Op = 'z'> = Abs<x, Abs<y, Abs<z, Ap<Ap<x, z>, Ap<y, z>>>>>
+
+  export type ApplyS<x extends Op, y extends Op, z extends Op> = Rewrite<Ap<Ap<Ap<S, x>, y>, z>, Ap<Ap<x, z>, Ap<y, z>>>
+  export type ApplyK<x extends Op, y extends Op> = Rewrite<Ap<Ap<K, x>, y>, x>
+
+  export namespace proof {
+    export interface SKK_I_Proof<x extends Op> {
+      type: 'rewrite',
+      left: Equation<Ap<Ap<Ap<S, K>, K>, x>, Ap<I, x>>, // S(K(K(x))) = I(x)
+      right: ChainRewrites<[
+        ApplyS<K, K, x>,
+        ApplyK<x, Ap<K, x>>,
+        composition.Abstraction<x, x, x>,
+        Refl
+      ], this['left']>,
+    }
+    export type inverse = [
+      // OpToStr<Evaluate<SKK_I_Proof<'x'>>>,
+      assert<VerifyEquation<SKK_I_Proof<'x'>>>,
+    ]
+  }
+
+  // SIIx = xx
+  // Booleans
+  // Y combinator
+}
